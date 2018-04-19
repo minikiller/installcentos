@@ -5,7 +5,7 @@
 export DOMAIN=${DOMAIN:="$(curl ipinfo.io/ip).nip.io"}
 export USERNAME=${USERNAME:="$(whoami)"}
 export PASSWORD=${PASSWORD:=password}
-export VERSION=${VERSION:="v3.7.1"}
+export VERSION=${VERSION:="v3.9.0"}
 
 export SCRIPT_REPO=${SCRIPT_REPO:="https://raw.githubusercontent.com/gshipley/installcentos/master"}
 
@@ -36,7 +36,7 @@ which ansible || pip install -Iv ansible
 
 [ ! -d openshift-ansible ] && git clone https://github.com/openshift/openshift-ansible.git
 
-cd openshift-ansible && git fetch && git checkout release-3.7 && cd ..
+cd openshift-ansible && git fetch && git checkout release-3.9 && cd ..
 
 cat <<EOD > /etc/hosts
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 
@@ -85,7 +85,9 @@ fi
 
 curl -o inventory.download $SCRIPT_REPO/inventory.ini
 envsubst < inventory.download > inventory.ini
-ansible-playbook -i inventory.ini openshift-ansible/playbooks/byo/config.yml
+ansible-playbook -i inventory.ini openshift-ansible/playbooks/prerequisites.yml -vvv
+ansible-playbook -i inventory.ini openshift-ansible/playbooks/deploy_cluster.yml -vvv
+
 
 htpasswd -b /etc/origin/master/htpasswd ${USERNAME} ${PASSWORD}
 oc adm policy add-cluster-role-to-user cluster-admin ${USERNAME}
